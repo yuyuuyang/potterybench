@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Wide serving bowl",
+    "stage": "Greenware/Drying",
+    "stageSince": "2026-08-18",
+    "wallThickness": 2,
+    "studioConditions": "Humid",
+    "clayBody": "Earthenware",
+    "formingMethod": "Wheel-thrown",
+    "note": null,
+    "createdAt": "2026-08-18T22:00:51.726Z"
+  },
+  {
+    "id": 2,
+    "name": "Small cup",
+    "stage": "Greenware/Drying",
+    "stageSince": "2026-08-18",
+    "wallThickness": 0.125,
+    "studioConditions": "Humid",
+    "clayBody": "Porcelain",
+    "formingMethod": "Wheel-thrown",
+    "note": null,
+    "createdAt": "2026-08-18T22:02:04.718Z"
+  },
+  {
+    "id": 3,
+    "name": "Donut shaped bowl",
+    "stage": "Greenware/Drying",
+    "stageSince": "2026-08-18",
+    "wallThickness": 1,
+    "studioConditions": "Humid",
+    "clayBody": "Porcelain",
+    "formingMethod": "Wheel-thrown",
+    "note": null,
+    "createdAt": "2026-08-18T22:02:44.837Z"
+  },
+  {
+    "id": 4,
+    "name": "Thin platter",
+    "stage": "Leather-hard/Trimming",
+    "stageSince": "2026-08-18",
+    "wallThickness": 0.1,
+    "studioConditions": "Humid",
+    "clayBody": "Stoneware",
+    "formingMethod": "Wheel-thrown",
+    "note": null,
+    "createdAt": "2026-08-18T22:04:31.047Z"
+  }
+]

@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+
+# env files
+.env.local
+
+# next.js
+.next
+
+# misc
+.DS_Store
+tsconfig.tsbuildinfo
+cursor_chat_pottery_queue_manager_update.json
