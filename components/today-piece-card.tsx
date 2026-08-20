@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom"
 import { Check, Pencil } from "lucide-react"
 import { parsePieceInput, type EditPieceState } from "@/lib/piece-form"
 import { advancePiece, updatePiece, daysBetween, type Piece } from "@/lib/storage"
+import { getPriorityBadge } from "@/lib/stages"
 import type { Assessment } from "@/lib/reasoning"
 import { PieceFormFields } from "@/components/piece-form-fields"
 import { PieceIcon } from "@/components/piece-icon"
@@ -58,13 +59,12 @@ export function TodayPieceCard({
   piece,
   assessment,
   today,
-  meta,
 }: {
   piece: Piece
   assessment: Assessment
   today: string
-  meta: { label: string; dot: string; chip: string }
 }) {
+  const meta = getPriorityBadge(assessment.priority, piece.stage)
   const [open, setOpen] = useState(false)
   const [answer, setAnswer] = useState("")
   const [answering, setAnswering] = useState(false)

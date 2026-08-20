@@ -9,12 +9,10 @@ import { TodayPieceCard } from "@/components/today-piece-card"
 export function NoRushSection({
   items,
   today,
-  meta,
   defaultOpen,
 }: {
   items: { assessment: Assessment; piece: Piece }[]
   today: string
-  meta: { label: string; dot: string; chip: string }
   defaultOpen: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -52,7 +50,7 @@ export function NoRushSection({
       {open ? (
         <ol className="flex flex-col gap-3">
           {items.map(({ assessment, piece }) => (
-            <TodayPieceCard key={piece.id} piece={piece} assessment={assessment} today={today} meta={meta} />
+            <TodayPieceCard key={piece.id} piece={piece} assessment={assessment} today={today} />
           ))}
         </ol>
       ) : null}

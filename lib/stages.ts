@@ -40,28 +40,36 @@ export function daysBetween(fromDate: string, toDate: string): number {
 
 export type Priority = "urgent" | "soon" | "no-rush" | "need-info"
 
-// The status badge shown on a piece card is always exactly one of these
-// three fixed strings — the model only ever selects a priority (a strict
-// enum), it never writes the badge text itself.
-export const PRIORITY_BADGE: Record<Priority, { label: string; dot: string; chip: string }> = {
-  urgent: {
-    label: "Needs you today",
-    dot: "bg-clay",
-    chip: "border-clay/40 bg-clay/15 text-clay",
-  },
-  soon: {
-    label: "Needs you today",
-    dot: "bg-clay",
-    chip: "border-clay/40 bg-clay/15 text-clay",
-  },
-  "need-info": {
-    label: "Needs more detail",
-    dot: "bg-foreground/40",
-    chip: "border-border bg-secondary text-foreground/70",
-  },
-  "no-rush": {
-    label: "No rush yet",
-    dot: "bg-sage",
-    chip: "border-sage/40 bg-sage/15 text-sage-foreground",
-  },
+// The action named on an urgent/soon badge is the one action that stage
+// actually calls for — fixed per stage, never chosen freely by the model.
+const STAGE_URGENT_LABEL: Record<Stage, string> = {
+  "Greenware/Drying": "Check today",
+  "Leather-hard/Trimming": "Trim today",
+  "Bisque Queue": "Fire today",
+  "Glaze-fire Queue": "Glaze today",
+}
+
+const PRIORITY_BADGE_STYLE: Record<Priority, { dot: string; chip: string }> = {
+  urgent: { dot: "bg-clay", chip: "border-clay/40 bg-clay/15 text-clay" },
+  soon: { dot: "bg-clay", chip: "border-clay/40 bg-clay/15 text-clay" },
+  "need-info": { dot: "bg-foreground/40", chip: "border-border bg-secondary text-foreground/70" },
+  "no-rush": { dot: "bg-sage", chip: "border-sage/40 bg-sage/15 text-sage-foreground" },
+}
+
+// The status badge shown on a piece card is always one of a fixed set of
+// strings — the model only ever selects a priority (a strict enum); for
+// urgent/soon the label text itself is then derived from the piece's
+// stage in code, never written by the model.
+export function getPriorityBadge(
+  priority: Priority,
+  stage: Stage,
+): { label: string; dot: string; chip: string } {
+  const label =
+    priority === "urgent" || priority === "soon"
+      ? STAGE_URGENT_LABEL[stage]
+      : priority === "no-rush"
+        ? "No rush yet"
+        : "Needs more detail"
+
+  return { label, ...PRIORITY_BADGE_STYLE[priority] }
 }

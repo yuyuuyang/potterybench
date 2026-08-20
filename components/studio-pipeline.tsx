@@ -1,7 +1,7 @@
 "use client"
 
 import { useLayoutEffect, useRef, useState } from "react"
-import { daysBetween, PRIORITY_BADGE, STAGES, type Piece, type Priority } from "@/lib/stages"
+import { daysBetween, getPriorityBadge, STAGES, type Piece, type Priority } from "@/lib/stages"
 import type { Assessment } from "@/lib/reasoning"
 import { PieceIcon } from "@/components/piece-icon"
 
@@ -133,7 +133,7 @@ export function StudioPipeline({
                 <button
                   type="button"
                   onClick={() => revealPiece(piece.id)}
-                  aria-label={`${piece.name} — ${PRIORITY_BADGE[assessment.priority].label}`}
+                  aria-label={`${piece.name} — ${getPriorityBadge(assessment.priority, piece.stage).label}`}
                   className={`flex size-6 items-center justify-center rounded-full border border-[#FFFDF9] bg-[#FFFDF9] transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${ringClasses(assessment.priority)}`}
                 >
                   <PieceIcon name={piece.name} size={14} />

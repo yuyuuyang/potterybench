@@ -1,4 +1,4 @@
-import { PRIORITY_BADGE, type Piece, type Priority } from "@/lib/stages"
+import type { Piece, Priority } from "@/lib/stages"
 import type { Assessment } from "@/lib/reasoning"
 import { TodayPieceCard } from "@/components/today-piece-card"
 import { NoRushSection } from "@/components/no-rush-section"
@@ -36,23 +36,12 @@ export function TodayList({
       {prominent.length > 0 ? (
         <ol className="flex flex-col gap-3">
           {prominent.map(({ assessment, piece }) => (
-            <TodayPieceCard
-              key={piece.id}
-              piece={piece}
-              assessment={assessment}
-              today={today}
-              meta={PRIORITY_BADGE[assessment.priority]}
-            />
+            <TodayPieceCard key={piece.id} piece={piece} assessment={assessment} today={today} />
           ))}
         </ol>
       ) : null}
 
-      <NoRushSection
-        items={noRush}
-        today={today}
-        meta={PRIORITY_BADGE["no-rush"]}
-        defaultOpen={prominent.length === 0}
-      />
+      <NoRushSection items={noRush} today={today} defaultOpen={prominent.length === 0} />
     </div>
   )
 }
