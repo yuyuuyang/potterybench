@@ -37,3 +37,31 @@ export function daysBetween(fromDate: string, toDate: string): number {
   const b = new Date(toDate + "T00:00:00Z").getTime()
   return Math.round((b - a) / 86_400_000)
 }
+
+export type Priority = "urgent" | "soon" | "no-rush" | "need-info"
+
+// The status badge shown on a piece card is always exactly one of these
+// three fixed strings — the model only ever selects a priority (a strict
+// enum), it never writes the badge text itself.
+export const PRIORITY_BADGE: Record<Priority, { label: string; dot: string; chip: string }> = {
+  urgent: {
+    label: "Needs you today",
+    dot: "bg-clay",
+    chip: "border-clay/40 bg-clay/15 text-clay",
+  },
+  soon: {
+    label: "Needs you today",
+    dot: "bg-clay",
+    chip: "border-clay/40 bg-clay/15 text-clay",
+  },
+  "need-info": {
+    label: "Needs more detail",
+    dot: "bg-foreground/40",
+    chip: "border-border bg-secondary text-foreground/70",
+  },
+  "no-rush": {
+    label: "No rush yet",
+    dot: "bg-sage",
+    chip: "border-sage/40 bg-sage/15 text-sage-foreground",
+  },
+}

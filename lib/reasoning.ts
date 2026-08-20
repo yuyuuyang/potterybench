@@ -2,14 +2,13 @@ import "server-only"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { generateObject } from "ai"
 import { z } from "zod"
-import { daysBetween, type Piece } from "./stages"
+import { daysBetween, type Piece, type Priority } from "./stages"
 
-export type Priority = "urgent" | "soon" | "no-rush" | "need-info"
+export type { Priority }
 
 export type Assessment = {
   pieceId: number
   priority: Priority
-  headline: string
   reason: string
   question: string | null
   checkBackIn: string | null
@@ -23,11 +22,8 @@ const assessmentSchema = z.object({
       priority: z
         .enum(["urgent", "soon", "no-rush", "need-info"])
         .describe(
-          "urgent = needs attention today; soon = act in the next day or two; no-rush = fine to leave as-is; need-info = not enough information to judge, so a clarifying question is required.",
+          "urgent = needs attention today; soon = act in the next day or two; no-rush = fine to leave as-is; need-info = not enough information to judge, so a clarifying question is required. This is the ONLY signal used to choose the status badge shown to the user — the app maps it to a fixed label ('Needs you today', 'No rush yet', or 'Needs more detail'). Never invent your own badge wording; put all piece-specific nuance in the reason sentence instead.",
         ),
-      headline: z
-        .string()
-        .describe('Short action or status, 2-5 words. e.g. "Trim today", "No rush yet", "Need more detail".'),
       reason: z
         .string()
         .describe(

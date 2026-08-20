@@ -147,7 +147,7 @@ export function TodayPieceCard({
               className={`inline-flex items-center gap-1.5 rounded border-2 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide ${meta.chip}`}
             >
               <span className={`size-1.5 shrink-0 rounded-full ${meta.dot}`} aria-hidden="true" />
-              {assessment.headline}
+              {meta.label}
             </span>
             {assessment.priority === "urgent" || assessment.priority === "soon" ? (
               <AdvanceCheckButton pieceId={piece.id} />
