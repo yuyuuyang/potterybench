@@ -1,11 +1,12 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { TodayList } from "@/components/today-list"
 import { StudioPipeline } from "@/components/studio-pipeline"
-import { getPieces } from "@/lib/db"
-import { assessPieces, type Assessment } from "@/lib/reasoning"
-
-export const dynamic = "force-dynamic"
+import { usePieces } from "@/lib/storage"
+import type { Assessment } from "@/lib/reasoning"
 
 function todayString() {
   return new Date().toISOString().slice(0, 10)
@@ -19,23 +20,52 @@ function longDate(d: string) {
   })
 }
 
-export default async function TodayPage() {
+export default function TodayPage() {
   const today = todayString()
-  const pieces = await getPieces()
+  const { pieces, ready } = usePieces()
+  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [reasoningError, setReasoningError] = useState<string | null>(null)
 
-  let assessments: Assessment[] = []
-  let reasoningError: string | null = null
-  if (pieces.length > 0) {
-    try {
-      assessments = await assessPieces(pieces, today)
-    } catch (err) {
-      console.error("[v0] reasoning failed:", err)
-      const msg = err instanceof Error ? err.message : String(err)
-      reasoningError = /GEMINI_API_KEY|API key|api_key|invalid.*key|401|403/i.test(msg)
-        ? "Gemini can't be reached — check that GEMINI_API_KEY is set in .env.local and restart the dev server."
-        : "Couldn't reason about your pieces just now. Refresh to try again."
+  useEffect(() => {
+    if (!ready) return
+    if (pieces.length === 0) {
+      setAssessments([])
+      setReasoningError(null)
+      return
     }
-  }
+
+    let cancelled = false
+    setReasoningError(null)
+
+    fetch("/api/assess", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pieces, today }),
+    })
+      .then(async (res) => {
+        const body = await res.json().catch(() => null)
+        if (!res.ok) throw new Error(body?.error ?? `Request failed with ${res.status}`)
+        return body as { assessments: Assessment[] }
+      })
+      .then((body) => {
+        if (cancelled) return
+        setAssessments(body.assessments)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error("[v0] reasoning failed:", err)
+        const msg = err instanceof Error ? err.message : String(err)
+        setReasoningError(
+          /GEMINI_API_KEY|API key|api_key|invalid.*key|401|403/i.test(msg)
+            ? "Gemini can't be reached — check that GEMINI_API_KEY is set and redeploy."
+            : "Couldn't reason about your pieces just now. Refresh to try again.",
+        )
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [ready, pieces, today])
 
   const attentionCount = assessments.filter(
     (a) => a.priority === "urgent" || a.priority === "soon",
@@ -53,7 +83,7 @@ export default async function TodayPage() {
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-balance">
               What needs attention today
             </h1>
-            {pieces.length > 0 && !reasoningError ? (
+            {ready && pieces.length > 0 && !reasoningError ? (
               <p className="mt-1 text-sm text-muted-foreground">
                 {attentionCount > 0
                   ? `${attentionCount} of ${pieces.length} ${
@@ -67,7 +97,7 @@ export default async function TodayPage() {
           </div>
         </div>
 
-        {pieces.length === 0 ? (
+        {!ready ? null : pieces.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card/50 p-10 text-center">
             <p className="text-sm text-muted-foreground text-pretty">
               No pieces logged yet. The Today view reasons about each piece you add —
@@ -84,7 +114,7 @@ export default async function TodayPage() {
           <div className="rounded-lg border border-clay/30 bg-clay/10 p-6 text-center">
             <p className="text-sm text-clay text-pretty">{reasoningError}</p>
           </div>
-        ) : (
+        ) : assessments.length === 0 ? null : (
           <div className="flex flex-col gap-6">
             <StudioPipeline pieces={pieces} assessments={assessments} today={today} />
             <TodayList pieces={pieces} assessments={assessments} today={today} />

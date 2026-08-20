@@ -2,26 +2,21 @@
 
 import { useActionState, useEffect, useState } from "react"
 import { useFormStatus } from "react-dom"
-import { useRouter } from "next/navigation"
 import { Check, Pencil } from "lucide-react"
-import { advancePieceAction, updatePieceAction, type EditPieceState } from "@/app/actions"
-import { daysBetween, type Piece } from "@/lib/stages"
+import { parsePieceInput, type EditPieceState } from "@/lib/piece-form"
+import { advancePiece, updatePiece, daysBetween, type Piece } from "@/lib/storage"
 import type { Assessment } from "@/lib/reasoning"
 import { PieceFormFields } from "@/components/piece-form-fields"
 import { PieceIcon } from "@/components/piece-icon"
 
 function AdvanceCheckButton({ pieceId }: { pieceId: number }) {
-  const router = useRouter()
   const [confirming, setConfirming] = useState(false)
 
   async function handleClick() {
     if (confirming) return
     setConfirming(true)
-    const formData = new FormData()
-    formData.set("id", String(pieceId))
     await new Promise((resolve) => setTimeout(resolve, 450))
-    await advancePieceAction(formData)
-    router.refresh()
+    advancePiece(pieceId)
   }
 
   return (
@@ -70,19 +65,31 @@ export function TodayPieceCard({
   today: string
   meta: { label: string; dot: string; chip: string }
 }) {
-  const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [state, formAction] = useActionState<EditPieceState, FormData>(updatePieceAction, {
-    error: null,
-    success: false,
-  })
+  const [state, formAction] = useActionState<EditPieceState, FormData>(
+    (_prev, formData) => {
+      const id = Number(formData.get("id"))
+      if (!Number.isFinite(id)) return { error: "Invalid piece.", success: false }
+
+      const parsed = parsePieceInput(formData)
+      if (!parsed.ok) return { error: parsed.error, success: false }
+
+      try {
+        updatePiece(id, parsed.data)
+      } catch {
+        return { error: "That piece could not be found.", success: false }
+      }
+
+      return { error: null, success: true }
+    },
+    { error: null, success: false },
+  )
 
   useEffect(() => {
     if (state.success) {
       setOpen(false)
-      router.refresh()
     }
-  }, [state.success, router])
+  }, [state.success])
 
   return (
     <li

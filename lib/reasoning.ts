@@ -2,7 +2,7 @@ import "server-only"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { generateObject } from "ai"
 import { z } from "zod"
-import { daysBetween, type Piece } from "./db"
+import { daysBetween, type Piece } from "./stages"
 
 export type Priority = "urgent" | "soon" | "no-rush" | "need-info"
 

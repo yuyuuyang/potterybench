@@ -2,7 +2,9 @@
 
 import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
-import { addPieceAction, type AddPieceState } from "@/app/actions"
+import { useRouter } from "next/navigation"
+import { parsePieceInput, type AddPieceState } from "@/lib/piece-form"
+import { insertPiece } from "@/lib/storage"
 import { PieceFormFields } from "@/components/piece-form-fields"
 
 function SubmitButton() {
@@ -19,9 +21,17 @@ function SubmitButton() {
 }
 
 export function AddPieceForm() {
-  const [state, formAction] = useActionState<AddPieceState, FormData>(addPieceAction, {
-    error: null,
-  })
+  const router = useRouter()
+  const [state, formAction] = useActionState<AddPieceState, FormData>(
+    (_prev, formData) => {
+      const parsed = parsePieceInput(formData)
+      if (!parsed.ok) return { error: parsed.error }
+      insertPiece(parsed.data)
+      router.push("/")
+      return { error: null }
+    },
+    { error: null },
+  )
   const today = new Date().toISOString().slice(0, 10)
 
   return (

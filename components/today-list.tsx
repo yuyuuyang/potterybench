@@ -1,4 +1,4 @@
-import type { Piece } from "@/lib/db"
+import type { Piece } from "@/lib/stages"
 import type { Assessment, Priority } from "@/lib/reasoning"
 import { TodayPieceCard } from "@/components/today-piece-card"
 import { NoRushSection } from "@/components/no-rush-section"

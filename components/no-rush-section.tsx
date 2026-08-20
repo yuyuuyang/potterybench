@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ChevronDown } from "lucide-react"
-import type { Piece } from "@/lib/db"
+import type { Piece } from "@/lib/stages"
 import type { Assessment } from "@/lib/reasoning"
 import { TodayPieceCard } from "@/components/today-piece-card"
 

@@ -1,12 +1,11 @@
+"use client"
+
 import { SiteHeader } from "@/components/site-header"
 import { AddPieceForm } from "@/components/add-piece-form"
-import { deletePieceAction } from "@/app/actions"
-import { getPieces } from "@/lib/db"
+import { usePieces, deletePiece } from "@/lib/storage"
 
-export const dynamic = "force-dynamic"
-
-export default async function LogPage() {
-  const pieces = await getPieces()
+export default function LogPage() {
+  const { pieces, ready } = usePieces()
 
   return (
     <div className="min-h-dvh">
@@ -25,9 +24,9 @@ export default async function LogPage() {
 
           <aside>
             <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-              On the bench ({pieces.length})
+              On the bench ({ready ? pieces.length : 0})
             </h2>
-            {pieces.length === 0 ? (
+            {!ready || pieces.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">Nothing logged yet.</p>
             ) : (
               <ul className="mt-3 flex flex-col gap-2">
@@ -43,28 +42,26 @@ export default async function LogPage() {
                           {p.stage}
                         </p>
                       </div>
-                      <form action={deletePieceAction}>
-                        <input type="hidden" name="id" value={p.id} />
-                        <button
-                          type="submit"
-                          aria-label={`Remove ${p.name}`}
-                          className="rounded p-1 text-foreground/35 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                      <button
+                        type="button"
+                        onClick={() => deletePiece(p.id)}
+                        aria-label={`Remove ${p.name}`}
+                        className="rounded p-1 text-foreground/35 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
                         >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                          </svg>
-                        </button>
-                      </form>
+                          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        </svg>
+                      </button>
                     </div>
                   </li>
                 ))}
