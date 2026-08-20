@@ -66,6 +66,8 @@ export function TodayPieceCard({
   meta: { label: string; dot: string; chip: string }
 }) {
   const [open, setOpen] = useState(false)
+  const [answer, setAnswer] = useState("")
+  const [answering, setAnswering] = useState(false)
   const [state, formAction] = useActionState<EditPieceState, FormData>(
     (_prev, formData) => {
       const id = Number(formData.get("id"))
@@ -90,6 +92,37 @@ export function TodayPieceCard({
       setOpen(false)
     }
   }, [state.success])
+
+  // Once a fresh assessment for this piece arrives (or after a fallback
+  // timeout if reasoning failed), re-enable the inline answer form.
+  useEffect(() => {
+    setAnswering(false)
+  }, [assessment])
+
+  useEffect(() => {
+    if (!answering) return
+    const timeout = window.setTimeout(() => setAnswering(false), 8000)
+    return () => window.clearTimeout(timeout)
+  }, [answering])
+
+  function handleAnswerSubmit(e: { preventDefault: () => void }) {
+    e.preventDefault()
+    const trimmed = answer.trim()
+    if (!trimmed || answering) return
+
+    updatePiece(piece.id, {
+      name: piece.name,
+      stage: piece.stage,
+      stageSince: piece.stageSince,
+      wallThickness: piece.wallThickness,
+      studioConditions: piece.studioConditions,
+      clayBody: piece.clayBody,
+      formingMethod: piece.formingMethod,
+      note: piece.note ? `${piece.note}\n${trimmed}` : trimmed,
+    })
+    setAnswer("")
+    setAnswering(true)
+  }
 
   return (
     <li
@@ -132,10 +165,30 @@ export function TodayPieceCard({
           ) : null}
 
           {assessment.priority === "need-info" && assessment.question ? (
-            <p className="mt-2 rounded-md bg-secondary px-3 py-2 text-sm leading-relaxed text-secondary-foreground">
-              <span className="font-medium">Quick question: </span>
-              {assessment.question}
-            </p>
+            <div className="mt-2 rounded-md bg-secondary px-3 py-2">
+              <p className="text-sm leading-relaxed text-secondary-foreground">
+                <span className="font-medium">Quick question: </span>
+                {assessment.question}
+              </p>
+              <form onSubmit={handleAnswerSubmit} className="mt-2 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  disabled={answering}
+                  placeholder="Answer in a few words…"
+                  aria-label={`Answer: ${assessment.question}`}
+                  className="w-full min-w-0 rounded-md border border-input bg-card px-2.5 py-1.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30 disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  disabled={!answer.trim() || answering}
+                  className="inline-flex shrink-0 items-center justify-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-[#A9702F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+                >
+                  {answering ? "Sent" : "Answer"}
+                </button>
+              </form>
+            </div>
           ) : null}
 
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted-foreground">
